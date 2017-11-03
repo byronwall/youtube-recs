@@ -1,0 +1,25 @@
+{
+  "name": "youtube-rec",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/nedb": "^1.8.5",
+    "@types/node": "^8.0.47",
+    "@types/request-promise-native": "^1.0.9",
+    "ts-node": "^3.3.0",
+    "typescript": "^2.5.3"
+  },
+  "dependencies": {
+    "@types/express": "^4.0.39",
+    "express": "^4.16.2",
+    "nedb": "^1.8.0",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
+  }
+}

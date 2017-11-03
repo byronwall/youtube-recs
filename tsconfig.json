@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "lib": ["es6", "dom"],
+    "target": "es5",
+    "outDir": "./build",
+    "types": ["node"],
+    "allowJs": true
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "client", "build"]
+}
