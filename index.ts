@@ -1,4 +1,4 @@
-import { YoutubeVideoListResponse } from "./youtube";
+import { YoutubeVideoListResponse } from "./client/src/youtube";
 import { key as API_KEY } from "../api-keys/youtube";
 import * as nedb from "nedb";
 import * as rp from "request-promise-native";

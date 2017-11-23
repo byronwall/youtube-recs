@@ -1,4 +1,4 @@
-export interface pageResults {
+export interface PageResults {
   totalResults: number;
   resultsPerPage: number;
 }
@@ -9,7 +9,7 @@ export interface YoutubeObj {
 }
 
 export interface YoutubeVideoListResponse extends YoutubeObj {
-  pageInfo: pageResults;
+  pageInfo: PageResults;
   items: YoutubeVideo[];
 }
 
