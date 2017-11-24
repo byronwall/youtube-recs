@@ -123,6 +123,22 @@ app.get("/watched", (req, res) => {
   // add a {watched: true} for the item found or flip otherwise
 });
 
+app.get("/later", (req, res) => {
+  // this is the end point that will add a watched video to the database
+
+  const query: ApiWatched = req.query;
+
+  const parts = query.ids.split(",");
+
+  parts.forEach(id => {
+    console.log(id);
+
+    // TODO: add the item to the DB, queue up the API call to get data
+  });
+
+  res.send("done");
+});
+
 app.get("/*", (req, res) => {
   // grabs the data and sorts by score
   // this is meant to be picked up by the React page
