@@ -90,7 +90,40 @@ app.get("/create_playlist", (req, res) => {
   res.send("req was sent");
 });
 
-app.get("*", (req, res) => {
+interface ApiWatched {
+  ids: string;
+}
+
+app.get("/watched", (req, res) => {
+  // this is the end point that will add a watched video to the database
+
+  const query: ApiWatched = req.query;
+
+  const parts = query.ids.split(",");
+
+  parts.forEach(id => {
+    console.log(id);
+
+    db.update(
+      { id: id },
+      { $set: { watched: true } },
+      {},
+      (err, numReplace) => {
+        console.log("updated", id, numReplace, err);
+      }
+    );
+  });
+
+  res.send("done");
+
+  // parse out the ids (CSV)
+
+  // do a create/update on the ids that come in
+
+  // add a {watched: true} for the item found or flip otherwise
+});
+
+app.get("/*", (req, res) => {
   // grabs the data and sorts by score
   // this is meant to be picked up by the React page
   db
@@ -162,7 +195,7 @@ function getBestGroups(
   callback: (videos: NedbVideo[]) => void
 ) {
   db
-    .find({})
+    .find({ watched: { $ne: true } })
     .sort({ score: -1 })
     .exec((err, videos: NedbVideo[]) => {
       // this gives a list of videos... need to find the channel name and group by that
