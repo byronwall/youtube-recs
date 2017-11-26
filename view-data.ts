@@ -1,8 +1,10 @@
 import { Packet, ResponseBodyHandler } from "_debugger";
-import { NedbVideo } from "./client/src/youtube";
+import { YoutubeVideoListResponse, NedbVideo } from "./client/src/youtube";
 import * as nedb from "nedb";
 import * as express from "express";
 import * as google from "googleapis";
+import { key as API_KEY, CLIENT_ID, CLIENT_SECRET } from "../api-keys/youtube";
+import * as rp from "request-promise-native";
 
 const youtube = google.youtube("v3");
 const app = express();
@@ -10,12 +12,10 @@ const app = express();
 // load the database
 const db = new nedb({ filename: "./data.db", autoload: true });
 
+db.ensureIndex({ fieldName: "id", unique: true });
+
 var oauth2Client = google.auth.OAuth2;
 
-// TODO: these secrets need to move
-var CLIENT_ID =
-  "200860882266-rvhl8bv9oftpe64ubbju6tnfbdruhij9.apps.googleusercontent.com";
-var CLIENT_SECRET = "K1yhW4H-KSn1cLifL5BQ6nDP";
 var REDIRECT_URL = "http://localhost:3001/auth_callback";
 
 var oauth2Client = new oauth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
@@ -115,12 +115,6 @@ app.get("/watched", (req, res) => {
   });
 
   res.send("done");
-
-  // parse out the ids (CSV)
-
-  // do a create/update on the ids that come in
-
-  // add a {watched: true} for the item found or flip otherwise
 });
 
 app.get("/later", (req, res) => {
@@ -133,10 +127,27 @@ app.get("/later", (req, res) => {
   parts.forEach(id => {
     console.log(id);
 
+    // add the watch later video
+    db.insert({ id }, (err, newDoc) => {
+      if (err) {
+        console.log("insert error", err);
+      } else {
+        console.log("insert result", newDoc);
+      }
+    });
+
     // TODO: add the item to the DB, queue up the API call to get data
   });
 
   res.send("done");
+});
+
+app.get("/updateData", (req, res) => {
+  // this is the end point that will add a watched video to the database
+
+  updateMissingData();
+
+  res.send("it's going... check the server console");
 });
 
 app.get("/*", (req, res) => {
@@ -153,6 +164,68 @@ app.get("/*", (req, res) => {
 app.listen(3001);
 
 console.log("server running...");
+
+function processAllDataInSerial(ids: string[]) {
+  return ids.reduce((chain, nextId) => {
+    console.log("reducer", nextId);
+    return chain.then(() => {
+      return loadFromApiAndAddToDb(nextId);
+    });
+  }, Promise.resolve());
+}
+
+function loadFromApiAndAddToDb(id: string) {
+  console.log("loading called...", id, new Date());
+
+  // build the API request using the ID and desired info
+  const parts = ["snippet", "contentDetails", "statistics"];
+  const params = {
+    uri: "https://www.googleapis.com/youtube/v3/videos",
+    qs: {
+      part: parts.join(","),
+      id: id,
+      key: API_KEY
+    },
+    json: true
+  };
+
+  // return a Promise for the API request and then push into the database
+  return rp(params).then((videos: YoutubeVideoListResponse) => {
+    videos.items.forEach(item => {
+      // take the object and push to a database
+      db.update({ id: item.id }, item);
+      console.log("inserted into DB", id);
+    });
+  });
+}
+
+function updateMissingData() {
+  // grab the IDs that do not have a kind field
+  db.find({ kind: { $exists: false } }, (err, docs: NedbVideo[]) => {
+    if (err) {
+      throw err;
+    }
+
+    const docIds = docs.map(doc => doc.id);
+
+    console.log(docIds);
+
+    // send those to the API to load the data
+
+    // update the DB with that data
+    processAllDataInSerial(docIds).then(() => {
+      console.log("all of those items have been updated");
+    });
+  });
+}
+
+/* code to remove bad entries if needed
+
+db.remove({ kind: { $exists: false } }, { multi: true }, (err, number) => {
+  console.log("error", err, "number", number);
+});
+
+*/
 
 function addTopItemsToPlaylist(id) {
   // hit the db to get the top items first
