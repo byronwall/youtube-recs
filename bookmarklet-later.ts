@@ -15,7 +15,7 @@ namespace BookmarkletLater {
     // TODO: fix the link regex
     // link to match: https://www.youtube.com/watch?v=P7XHzqZjXQs&index=1&list=WL
     const matches = item.href.match(
-      /https:\/\/www.youtube.com\/watch\?v=(.*?)(?:t=(.*)s)?$/
+      /https:\/\/www.youtube.com\/watch\?v=(.*?)(?:t=(.*)s)?&(list|index)=.*?$/
     );
     if (matches != null) {
       const id = matches[1];
