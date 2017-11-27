@@ -1,7 +1,7 @@
 import { NedbVideo } from "./youtube";
 import { Video } from "./Video";
 import * as React from "react";
-import { GridList } from "material-ui";
+import { Row } from "react-bootstrap";
 
 interface VideosState {
   videos: NedbVideo[];
@@ -18,11 +18,11 @@ export class Videos extends React.Component<{}, VideosState> {
   render() {
     return (
       <div>
-        <GridList cols={5}>
+        <Row>
           {this.state.videos.map(video => (
             <Video key={video._id} video={video} />
           ))}
-        </GridList>
+        </Row>
       </div>
     );
   }

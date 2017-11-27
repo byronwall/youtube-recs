@@ -72,7 +72,7 @@ export interface YoutubeVideo extends YoutubeObj {
 }
 
 export interface NedbVideo extends YoutubeVideo {
-  _id: string;
+  _id?: string;
   ratio: number;
   score: number;
 }
