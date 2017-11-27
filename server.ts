@@ -154,7 +154,7 @@ app.get("/*", (req, res) => {
   // grabs the data and sorts by score
   // this is meant to be picked up by the React page
   db
-    .find({})
+    .find({ watched: { $ne: true } })
     .sort({ score: -1 })
     .exec((err, videos: NedbVideo[]) => {
       res.json(videos);
@@ -193,7 +193,16 @@ function loadFromApiAndAddToDb(id: string) {
   return rp(params).then((videos: YoutubeVideoListResponse) => {
     videos.items.forEach(item => {
       // take the object and push to a database
-      db.update({ id: item.id }, item);
+      const ratio =
+        item.statistics.likeCount / (item.statistics.dislikeCount + 0.01);
+
+      const newItem: NedbVideo = {
+        ...item,
+        ratio,
+        score: ratio * item.statistics.viewCount
+      };
+
+      db.update({ id: item.id }, newItem);
       console.log("inserted into DB", id);
     });
   });
@@ -201,7 +210,7 @@ function loadFromApiAndAddToDb(id: string) {
 
 function updateMissingData() {
   // grab the IDs that do not have a kind field
-  db.find({ kind: { $exists: false } }, (err, docs: NedbVideo[]) => {
+  db.find({ score: { $exists: false } }, (err, docs: NedbVideo[]) => {
     if (err) {
       throw err;
     }
