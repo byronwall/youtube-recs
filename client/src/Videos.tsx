@@ -1,7 +1,7 @@
 import { NedbVideo } from "./youtube";
 import { Video } from "./Video";
 import * as React from "react";
-import { Row } from "react-bootstrap";
+import { Row, Grid } from "react-bootstrap";
 
 interface VideosState {
   videos: NedbVideo[];
@@ -17,13 +17,13 @@ export class Videos extends React.Component<{}, VideosState> {
   }
   render() {
     return (
-      <div>
+      <Grid>
         <Row>
           {this.state.videos.map(video => (
             <Video key={video._id} video={video} />
           ))}
         </Row>
-      </div>
+      </Grid>
     );
   }
 
