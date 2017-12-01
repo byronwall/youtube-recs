@@ -16,4 +16,10 @@
 
 ## Unreleased
 
-* none - first release
+* [Client] Add header to site with links to items
+* [Client] Corrected visuals of the cards (add `numeral` with better formatting,
+  add `truncate`)
+* [Server] Add code to fix the ratio and update previous results (values were
+  stored as strings)
+* [Server] Add redirects to certain spots to improve workflows (more work needed
+  once down to single server)

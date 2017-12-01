@@ -1,5 +1,9 @@
 import { Packet, ResponseBodyHandler } from "_debugger";
-import { YoutubeVideoListResponse, NedbVideo } from "./client/src/youtube";
+import {
+  YoutubeVideoListResponse,
+  NedbVideo,
+  YoutubeVideo
+} from "./client/src/youtube";
 import * as nedb from "nedb";
 import * as express from "express";
 import * as google from "googleapis";
@@ -47,12 +51,11 @@ app.get("/auth_callback", (req, res) => {
       console.log("token was created and saved");
 
       // TODO: this needs to kick back into the site somewhere
+      res.redirect("http://localhost:3000");
     } else {
       console.log(err);
     }
   });
-
-  res.send("code was sent" + req.query.code);
 });
 
 app.get("/create_playlist", (req, res) => {
@@ -174,8 +177,48 @@ function processAllDataInSerial(ids: string[]) {
   }, Promise.resolve());
 }
 
+function updateRatio() {
+  db.find({ statistics: { $exists: true } }, (err, docs: NedbVideo[]) => {
+    docs.forEach(doc => {
+      const initRatio = doc.ratio;
+      processDoc(doc);
+
+      db.update(
+        { _id: doc._id },
+        {
+          $set: {
+            ratio: doc.ratio,
+            score: doc.score,
+            statistics: doc.statistics
+          }
+        },
+        { multi: true },
+        (err, num) => {
+          console.log("err", err, "num", num);
+        }
+      );
+    });
+  });
+}
+
+function processDoc(doc: YoutubeVideo) {
+  // convert the stats info to numbers
+
+  const newDoc: NedbVideo = { ...doc, ratio: null, score: null };
+
+  Object.keys(newDoc.statistics).forEach(key => {
+    newDoc.statistics[key] = parseInt(newDoc.statistics[key]);
+  });
+
+  newDoc.ratio =
+    newDoc.statistics.likeCount / (newDoc.statistics.dislikeCount + 0.01);
+  newDoc.score = newDoc.ratio * newDoc.statistics.viewCount;
+}
+
 function loadFromApiAndAddToDb(id: string) {
   console.log("loading called...", id, new Date());
+
+  // TODO: add a check here to only load new videos
 
   // build the API request using the ID and desired info
   const parts = ["snippet", "contentDetails", "statistics"];
@@ -193,16 +236,10 @@ function loadFromApiAndAddToDb(id: string) {
   return rp(params).then((videos: YoutubeVideoListResponse) => {
     videos.items.forEach(item => {
       // take the object and push to a database
-      const ratio =
-        item.statistics.likeCount / (item.statistics.dislikeCount + 0.01);
 
-      const newItem: NedbVideo = {
-        ...item,
-        ratio,
-        score: ratio * item.statistics.viewCount
-      };
+      processDoc(item);
 
-      db.update({ id: item.id }, newItem);
+      db.update({ id: item.id }, item);
       console.log("inserted into DB", id);
     });
   });
