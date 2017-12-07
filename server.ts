@@ -31,13 +31,25 @@ app.get("/auth", (req, res) => {
 
   console.log("creating auth url...");
 
-  var url = oauth2Client.generateAuthUrl({
-    access_type: "offline",
-    scope: scopes
-  });
-  res.redirect(url);
-  console.log("sent redirect");
+  // TODO: convert this to an auth function with a callback
+
+  if (fs.existsSync("./tokens.json")) {
+    console.log("previous tokens were found... using those");
+    oauth2Client.credentials = JSON.parse(
+      fs.readFileSync("./tokens.json", "utf-8")
+    );
+    res.redirect("http://localhost:3000");
+  } else {
+    var url = oauth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: scopes
+    });
+    res.redirect(url);
+    console.log("sent redirect");
+  }
 });
+
+import * as fs from "fs";
 
 app.get("/auth_callback", (req, res) => {
   console.log(req.query.code);
@@ -47,6 +59,9 @@ app.get("/auth_callback", (req, res) => {
   oauth2Client.getToken(code, function(err, tokens) {
     // Now tokens contains an access_token and an optional refresh_token. Save them.
     if (!err) {
+      // write tokens to disk
+      fs.writeFileSync("./tokens.json", JSON.stringify(tokens));
+
       oauth2Client.setCredentials(tokens);
       console.log("token was created and saved");
 
@@ -158,7 +173,7 @@ app.get("/*", (req, res) => {
   // this is meant to be picked up by the React page
   db
     .find({ watched: { $ne: true } })
-    .sort({ score: -1 })
+    .sort({ ratio: -1 })
     .exec((err, videos: NedbVideo[]) => {
       res.json(videos);
     });
@@ -276,7 +291,7 @@ db.remove({ kind: { $exists: false } }, { multi: true }, (err, number) => {
 function addTopItemsToPlaylist(id) {
   // hit the db to get the top items first
 
-  getBestGroups(10, videos => {
+  getBestGroups(20, videos => {
     console.log("best", videos.map(video => video.snippet.title));
 
     videos.reduce((chain, video) => {

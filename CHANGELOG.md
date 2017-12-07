@@ -2,6 +2,8 @@
 
 ## Todo
 
+* add a delete link to the videos to remove from list (or maybe "archive" so not
+  added later)
 * ability to limit the length of a video added to the playlist
 * control over the total number of items (or playtime) in a playlist
 * control over the name of the playlist; also whether to create new or overwrite
@@ -23,3 +25,5 @@
   stored as strings)
 * [Server] Add redirects to certain spots to improve workflows (more work needed
   once down to single server)
+* Add support for storing a user's credentials on server (works for a single
+  user)
