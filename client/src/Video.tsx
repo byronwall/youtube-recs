@@ -26,6 +26,9 @@ export class Video extends React.Component<VideoProps, {}> {
             <span>{" | "}</span>
             <span>{numeral(video.ratio).format("0.0")}</span>
           </p>
+          <p>
+            <span>{video.contentDetails.duration}</span>
+          </p>
         </Thumbnail>
       </Col>
     );
