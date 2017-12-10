@@ -1,14 +1,15 @@
-import { Packet, ResponseBodyHandler } from "_debugger";
 import {
   YoutubeVideoListResponse,
   NedbVideo,
-  YoutubeVideo
+  YoutubeVideo,
+  SearchListResponse
 } from "./client/src/youtube";
 import * as nedb from "nedb";
 import * as express from "express";
 import * as google from "googleapis";
 import { key as API_KEY, CLIENT_ID, CLIENT_SECRET } from "../api-keys/youtube";
 import * as rp from "request-promise-native";
+import { Response } from "express";
 
 const youtube = google.youtube("v3");
 const app = express();
@@ -27,18 +28,23 @@ var oauth2Client = new oauth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 // TODO: these auth calls should flow better
 
 app.get("/auth", (req, res) => {
-  var scopes = ["https://www.googleapis.com/auth/youtube"];
-
   console.log("creating auth url...");
 
   // TODO: convert this to an auth function with a callback
+});
+
+function authorize(res: Response, shouldRedirect: boolean) {
+  const scopes = ["https://www.googleapis.com/auth/youtube"];
 
   if (fs.existsSync("./tokens.json")) {
     console.log("previous tokens were found... using those");
     oauth2Client.credentials = JSON.parse(
       fs.readFileSync("./tokens.json", "utf-8")
     );
-    res.redirect("http://localhost:3000");
+    if (shouldRedirect) {
+      res.redirect("http://localhost:3000");
+    }
+    return true;
   } else {
     var url = oauth2Client.generateAuthUrl({
       access_type: "offline",
@@ -47,7 +53,9 @@ app.get("/auth", (req, res) => {
     res.redirect(url);
     console.log("sent redirect");
   }
-});
+
+  return false;
+}
 
 import * as fs from "fs";
 
@@ -160,6 +168,52 @@ app.get("/later", (req, res) => {
   res.send("done");
 });
 
+interface ApiRelated {
+  id: string;
+}
+
+app.get("/related", (req, res) => {
+  // this is the end point that will add a watched video to the database
+
+  authorize(res, false);
+
+  const query: ApiRelated = req.query;
+
+  const id = query.id;
+  console.log("calling related ", id);
+
+  // call to api to get related
+  youtube.search.list(
+    {
+      part: "snippet",
+      auth: oauth2Client,
+      relatedToVideoId: id,
+      type: "video"
+    },
+    (err, response: SearchListResponse) => {
+      if (err) {
+        console.log("error", err);
+      } else {
+        console.log("response", response);
+
+        // TODO: iterate through the pages returned using the next page token...
+
+        response.items.forEach(item => {
+          console.log(
+            item.id.videoId,
+            item.snippet.channelTitle,
+            item.snippet.title
+          );
+
+          // add each item to the database, and then update info for those results... add a {related:true}
+        });
+
+        res.json(response);
+      }
+    }
+  );
+});
+
 app.get("/updateData", (req, res) => {
   // this is the end point that will add a watched video to the database
 
@@ -168,11 +222,19 @@ app.get("/updateData", (req, res) => {
   res.send("it's going... check the server console");
 });
 
+app.get("/updateRatio", (req, res) => {
+  // this is the end point that will add a watched video to the database
+
+  updateRatio();
+
+  res.send("it's going... check the server console");
+});
+
 app.get("/*", (req, res) => {
   // grabs the data and sorts by score
   // this is meant to be picked up by the React page
   db
-    .find({ watched: { $ne: true } })
+    .find({ watched: { $exists: false } })
     .sort({ ratio: -1 })
     .exec((err, videos: NedbVideo[]) => {
       res.json(videos);
@@ -193,18 +255,17 @@ function processAllDataInSerial(ids: string[]) {
 }
 
 function updateRatio() {
-  db.find({ statistics: { $exists: true } }, (err, docs: NedbVideo[]) => {
+  db.find({ watched: { $exists: false } }, (err, docs: NedbVideo[]) => {
     docs.forEach(doc => {
-      const initRatio = doc.ratio;
-      processDoc(doc);
+      const newDoc = processDoc(doc);
 
       db.update(
-        { _id: doc._id },
+        { _id: newDoc._id },
         {
           $set: {
-            ratio: doc.ratio,
-            score: doc.score,
-            statistics: doc.statistics
+            ratio: newDoc.ratio,
+            score: newDoc.score,
+            statistics: newDoc.statistics
           }
         },
         { multi: true },
@@ -226,8 +287,10 @@ function processDoc(doc: YoutubeVideo) {
   });
 
   newDoc.ratio =
-    newDoc.statistics.likeCount / (newDoc.statistics.dislikeCount + 0.01);
+    newDoc.statistics.likeCount / Math.max(newDoc.statistics.dislikeCount, 1);
   newDoc.score = newDoc.ratio * newDoc.statistics.viewCount;
+
+  return newDoc;
 }
 
 function loadFromApiAndAddToDb(id: string) {
@@ -252,9 +315,9 @@ function loadFromApiAndAddToDb(id: string) {
     videos.items.forEach(item => {
       // take the object and push to a database
 
-      processDoc(item);
+      const newDoc = processDoc(item);
 
-      db.update({ id: item.id }, item);
+      db.update({ id: newDoc.id }, newDoc);
       console.log("inserted into DB", id);
     });
   });
@@ -262,7 +325,7 @@ function loadFromApiAndAddToDb(id: string) {
 
 function updateMissingData() {
   // grab the IDs that do not have a kind field
-  db.find({ score: { $exists: false } }, (err, docs: NedbVideo[]) => {
+  db.find({ kind: { $exists: false } }, (err, docs: NedbVideo[]) => {
     if (err) {
       throw err;
     }

@@ -23,8 +23,8 @@ export interface Thumbnails {
   default: Thumbnail;
   medium: Thumbnail;
   high: Thumbnail;
-  standard: Thumbnail;
-  maxres: Thumbnail;
+  standard?: Thumbnail;
+  maxres?: Thumbnail;
 }
 
 export interface Localized {
@@ -75,4 +75,30 @@ export interface NedbVideo extends YoutubeVideo {
   _id?: string;
   ratio: number;
   score: number;
+}
+
+export interface PageInfo {
+  totalResults: number;
+  resultsPerPage: number;
+}
+
+export interface Id {
+  kind: string;
+  videoId: string;
+}
+
+export interface SearchResult {
+  kind: string;
+  etag: string;
+  id: Id;
+  snippet: Snippet;
+}
+
+export interface SearchListResponse {
+  kind: string;
+  etag: string;
+  nextPageToken: string;
+  regionCode: string;
+  pageInfo: PageInfo;
+  items: SearchResult[];
 }
