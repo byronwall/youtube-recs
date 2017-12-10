@@ -6,7 +6,7 @@ namespace BookmarkletHistory {
 
   Array.from(items).forEach((item: HTMLAnchorElement) => {
     const matches = item.href.match(
-      /https:\/\/www.youtube.com\/watch\?v=(.*?)(?:t=(.*)s)?$/
+      /https:\/\/www.youtube.com\/watch\?v=(.*?)(?:&t=(.*)s)?$/
     );
     if (matches != null) {
       const id = matches[1];
