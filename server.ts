@@ -11,8 +11,12 @@ import { key as API_KEY, CLIENT_ID, CLIENT_SECRET } from "../api-keys/youtube";
 import * as rp from "request-promise-native";
 import { Response } from "express";
 
+import * as bodyParser from "body-parser";
+
 const youtube = google.youtube("v3");
 const app = express();
+
+app.use(bodyParser.json());
 
 // load the database
 const db = new nedb({ filename: "./data.db", autoload: true });
@@ -30,10 +34,11 @@ var oauth2Client = new oauth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 app.get("/auth", (req, res) => {
   console.log("creating auth url...");
 
-  // TODO: convert this to an auth function with a callback
+  authorize(res, true);
 });
 
 function authorize(res: Response, shouldRedirect: boolean) {
+  // TODO: handle a callback?
   const scopes = ["https://www.googleapis.com/auth/youtube"];
 
   if (fs.existsSync("./tokens.json")) {
@@ -79,6 +84,49 @@ app.get("/auth_callback", (req, res) => {
       console.log(err);
     }
   });
+});
+
+interface APICreatePlaylist {
+  ids: string;
+}
+
+app.post("/create_playlist", (req, res) => {
+  // TODO: pull this out into a find or create
+  // TODO: pull this out into its own method regardless of find/create
+
+  console.log(req.body);
+  const videoIds = req.body;
+
+  youtube.playlists.insert(
+    {
+      part: "snippet,status",
+      forUsername: "mine",
+      auth: oauth2Client,
+      resource: {
+        snippet: {
+          title: "Algo Watch Later",
+          description: "description"
+        },
+        status: {
+          privacyStatus: "private"
+        }
+      }
+    },
+    (err, response) => {
+      if (err) {
+        console.log("error", err);
+      } else {
+        console.log("response", response);
+
+        const playlistId = response.id;
+
+        // take that id and add some items to it
+        addIdsToPlaylist(playlistId, videoIds);
+      }
+    }
+  );
+
+  res.send("req was sent");
 });
 
 app.get("/create_playlist", (req, res) => {
@@ -359,15 +407,22 @@ function addTopItemsToPlaylist(id) {
 
     videos.reduce((chain, video) => {
       return chain.then(() => {
-        return addVideoToPlaylist(id, video);
+        return addVideoToPlaylist(id, video.id);
       });
     }, Promise.resolve({}));
   });
 }
 
-function addVideoToPlaylist(playlistId: string, video: NedbVideo) {
+function addIdsToPlaylist(playlistId: string, videoIds: string[]) {
+  videoIds.reduce((chain, id) => {
+    return chain.then(() => {
+      return addVideoToPlaylist(playlistId, id);
+    });
+  }, Promise.resolve({}));
+}
+
+function addVideoToPlaylist(playlistId: string, videoId: string) {
   return new Promise((resolve, reject) => {
-    console.log(video.snippet.title);
     youtube.playlistItems.insert(
       {
         part: "snippet",
@@ -376,7 +431,7 @@ function addVideoToPlaylist(playlistId: string, video: NedbVideo) {
           snippet: {
             playlistId,
             resourceId: {
-              videoId: video.id,
+              videoId: videoId,
               kind: "youtube#video"
             }
           }

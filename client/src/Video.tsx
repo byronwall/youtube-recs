@@ -5,6 +5,8 @@ import { Col, Thumbnail } from "react-bootstrap";
 import * as numeral from "numeral";
 import { truncate } from "./Helpers";
 
+import { Duration } from "js-joda";
+
 interface VideoProps {
   video: NedbVideo;
 }
@@ -27,10 +29,14 @@ export class Video extends React.Component<VideoProps, {}> {
             <span>{numeral(video.ratio).format("0.0")}</span>
           </p>
           <p>
-            <span>{video.contentDetails.duration}</span>
+            <span>{prettyDuration(video.contentDetails.duration)}</span>
           </p>
         </Thumbnail>
       </Col>
     );
   }
+}
+
+function prettyDuration(duration: string) {
+  return Duration.parse(duration).toMillis() / 1000 / 60;
 }
