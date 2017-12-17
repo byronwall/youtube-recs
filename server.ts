@@ -228,39 +228,53 @@ app.get("/related", (req, res) => {
   const query: ApiRelated = req.query;
 
   const id = query.id;
+
+  getRelatedVideos(id).then((response: any) => {
+    getRelatedVideos(id, response.nextPageToken).then((response2: any) => {
+      res.json([...response, ...response2]);
+    });
+  });
+
   console.log("calling related ", id);
 
   // call to api to get related
-  youtube.search.list(
-    {
-      part: "snippet",
-      auth: oauth2Client,
-      relatedToVideoId: id,
-      type: "video"
-    },
-    (err, response: SearchListResponse) => {
-      if (err) {
-        console.log("error", err);
-      } else {
-        console.log("response", response);
-
-        // TODO: iterate through the pages returned using the next page token...
-
-        response.items.forEach(item => {
-          console.log(
-            item.id.videoId,
-            item.snippet.channelTitle,
-            item.snippet.title
-          );
-
-          // add each item to the database, and then update info for those results... add a {related:true}
-        });
-
-        res.json(response);
-      }
-    }
-  );
 });
+
+function getRelatedVideos(id: string, pageToken?: string) {
+  return new Promise((resolve, reject) => {
+    youtube.search.list(
+      {
+        part: "snippet",
+        auth: oauth2Client,
+        relatedToVideoId: id,
+        pageToken,
+        type: "video"
+      },
+      (err, response: SearchListResponse) => {
+        if (err) {
+          console.log("error", err);
+          reject(err);
+        } else {
+          console.log("response", response);
+
+          // TODO: iterate through the pages returned using the next page token...
+
+          response.items.forEach(item => {
+            console.log(
+              item.id.videoId,
+              item.snippet.channelTitle,
+              item.snippet.title
+            );
+
+            // add each item to the database, and then update info for those results... add a {related:true}
+          });
+
+          resolve(response);
+        }
+      }
+    );
+  });
+}
 
 app.get("/updateData", (req, res) => {
   // this is the end point that will add a watched video to the database
