@@ -229,10 +229,18 @@ app.get("/related", (req, res) => {
 
   const id = query.id;
 
-  getRelatedVideos(id).then((response: any) => {
-    getRelatedVideos(id, response.nextPageToken).then((response2: any) => {
-      res.json([...response, ...response2]);
-    });
+  // TODO: clean this up to run and retrieve as many results as desired... don't nest thens
+  const a = getRelatedVideos(id);
+  const b = a.then((response: any) => {
+    return getRelatedVideos(id, response.nextPageToken);
+  });
+  const c = b.then((response: any) => {
+    return getRelatedVideos(id, response.nextPageToken);
+  });
+
+  const d = Promise.all([a, b, c]).then(results => {
+    console.log(results);
+    res.json(results);
   });
 
   console.log("calling related ", id);
