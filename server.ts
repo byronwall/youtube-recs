@@ -381,16 +381,20 @@ function loadFromApiAndAddToDb(id: string) {
   };
 
   // return a Promise for the API request and then push into the database
-  return rp(params).then((videos: YoutubeVideoListResponse) => {
-    videos.items.forEach(item => {
-      // take the object and push to a database
+  return rp(params)
+    .then((videos: YoutubeVideoListResponse) => {
+      videos.items.forEach(item => {
+        // take the object and push to a database
 
-      const newDoc = processDoc(item);
+        const newDoc = processDoc(item);
 
-      db.update({ id: newDoc.id }, newDoc);
-      console.log("inserted into DB", id);
+        db.update({ id: newDoc.id }, newDoc);
+        console.log("inserted into DB", id);
+      });
+    })
+    .catch(err => {
+      console.log("error while loading: ", err);
     });
-  });
 }
 
 function updateMissingData() {
