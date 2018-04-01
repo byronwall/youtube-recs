@@ -15,7 +15,11 @@ import * as path from "path";
 import * as bodyParser from "body-parser";
 
 // this calls some process.env calls to set up ENV variables for YOUTUBE API
-import "../api-keys/youtube";
+try {
+  require("../api-keys/youtube");
+} catch (e) {
+  console.log("missing import... no issue");
+}
 
 let API_KEY = process.env.API_KEY;
 let CLIENT_ID = process.env.CLIENT_ID;
