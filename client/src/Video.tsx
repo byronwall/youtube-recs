@@ -15,11 +15,15 @@ export class Video extends React.Component<VideoProps, {}> {
   render() {
     const video = this.props.video;
 
+    if (video.snippet === undefined) {
+      return "empty";
+    }
+
     return (
-      <Col md={2}>
+      <Col md={3}>
         <Thumbnail
           src={video.snippet.thumbnails.default.url}
-          style={{ minHeight: 300 }}
+          style={{ minHeight: 280 }}
           href={"https://youtube.com/watch?v=" + video.id}
         >
           <h4>{truncate(video.snippet.title, 60)}</h4>
@@ -38,5 +42,5 @@ export class Video extends React.Component<VideoProps, {}> {
 }
 
 function prettyDuration(duration: string) {
-  return Duration.parse(duration).toMillis() / 1000 / 60;
+  return numeral(Duration.parse(duration).toMillis() / 1000 / 60).format("0.0");
 }
