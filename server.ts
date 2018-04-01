@@ -14,20 +14,12 @@ import { Response } from "express";
 import * as path from "path";
 import * as bodyParser from "body-parser";
 
-import YoutubeApi = require("../api-keys/youtube");
+// this calls some process.env calls to set up ENV variables for YOUTUBE API
+import "../api-keys/youtube";
 
-console.log("does youtube api exist?", YoutubeApi, YoutubeApi === undefined);
-
-let API_KEY =
-  YoutubeApi === undefined ? process.env.API_KEY : YoutubeApi.default.getKey();
-let CLIENT_ID =
-  YoutubeApi === undefined
-    ? process.env.CLIENT_ID
-    : YoutubeApi.default.getClientId();
-let CLIENT_SECRET =
-  YoutubeApi === undefined
-    ? process.env.CLIENT_SECRET
-    : YoutubeApi.default.getClientSecret();
+let API_KEY = process.env.API_KEY;
+let CLIENT_ID = process.env.CLIENT_ID;
+let CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 const youtube = google.youtube("v3");
 const app = express();
