@@ -7,16 +7,36 @@ import {
 import * as nedb from "nedb";
 import * as express from "express";
 import * as google from "googleapis";
-import { key as API_KEY, CLIENT_ID, CLIENT_SECRET } from "../api-keys/youtube";
+
 import * as rp from "request-promise-native";
 import { Response } from "express";
 
+import * as path from "path";
 import * as bodyParser from "body-parser";
+
+import YoutubeApi = require("../api-keys/youtube");
+
+console.log("does youtube api exist?", YoutubeApi, YoutubeApi === undefined);
+
+let API_KEY =
+  YoutubeApi === undefined ? process.env.API_KEY : YoutubeApi.default.getKey();
+let CLIENT_ID =
+  YoutubeApi === undefined
+    ? process.env.CLIENT_ID
+    : YoutubeApi.default.getClientId();
+let CLIENT_SECRET =
+  YoutubeApi === undefined
+    ? process.env.CLIENT_SECRET
+    : YoutubeApi.default.getClientSecret();
 
 const youtube = google.youtube("v3");
 const app = express();
 
 app.use(bodyParser.json());
+
+// Serve static files from the React app
+// TODO: update this path
+app.use(express.static(path.join(__dirname, "../client/build")));
 
 // load the database
 const db = new nedb({ filename: "./data.db", autoload: true });
@@ -126,7 +146,7 @@ app.post("/create_playlist", (req, res) => {
     }
   );
 
-  res.send("req was sent");
+  res.redirect("http://localhost:3000");
 });
 
 app.get("/create_playlist", (req, res) => {
@@ -300,7 +320,9 @@ app.get("/updateRatio", (req, res) => {
   res.send("it's going... check the server console");
 });
 
-app.get("/*", (req, res) => {
+// TODO: put this back in somewhere
+
+/* app.get("/*", (req, res) => {
   // grabs the data and sorts by score
   // this is meant to be picked up by the React page
   db
@@ -309,9 +331,14 @@ app.get("/*", (req, res) => {
     .exec((err, videos: NedbVideo[]) => {
       res.json(videos);
     });
+}); */
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/client/build/index.html"));
 });
 
-app.listen(3001);
+const port = process.env.PORT || 3001;
+app.listen(port);
 
 console.log("server running...");
 
@@ -497,9 +524,11 @@ function getBestGroups(
       const videoGroups = [];
 
       videos.forEach(video => {
-        const channel = video.snippet.channelTitle;
-        if (videoGroups[channel] === undefined) {
-          videoGroups[channel] = video;
+        if (video.snippet !== undefined) {
+          const channel = video.snippet.channelTitle;
+          if (videoGroups[channel] === undefined) {
+            videoGroups[channel] = video;
+          }
         }
       });
 

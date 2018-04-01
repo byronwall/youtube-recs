@@ -6,7 +6,10 @@
   "scripts": {
     "server": "nodemon --watch '*.ts' --exec ts-node server.ts",
     "client": "cd client && yarn start",
-    "start": "concurrently \"yarn run server\" \"yarn run client\""
+    "dev": "concurrently \"yarn run server\" \"yarn run client\"",
+    "start": "node build/server.js",
+    "start-local": "node build/youtube-rec/server.js",
+    "postinstall": "tsc && cd client && yarn build"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +17,7 @@
     "@types/nedb": "^1.8.5",
     "@types/node": "^8.0.47",
     "@types/request-promise-native": "^1.0.9",
+    "heroku-cli": "^6.16.3",
     "ts-node": "^3.3.0",
     "typescript": "^2.5.3"
   },
