@@ -316,9 +316,7 @@ app.get("/updateRatio", (req, res) => {
   res.send("it's going... check the server console");
 });
 
-// TODO: put this back in somewhere
-
-/* app.get("/*", (req, res) => {
+app.get("/data", (req, res) => {
   // grabs the data and sorts by score
   // this is meant to be picked up by the React page
   db
@@ -327,7 +325,7 @@ app.get("/updateRatio", (req, res) => {
     .exec((err, videos: NedbVideo[]) => {
       res.json(videos);
     });
-}); */
+});
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname + "/client/build/index.html"));
