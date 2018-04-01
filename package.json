@@ -9,7 +9,8 @@
     "dev": "concurrently \"yarn run server\" \"yarn run client\"",
     "start": "node build/server.js",
     "start-local": "node build/youtube-rec/server.js",
-    "postinstall": "tsc && cd client && yarn build"
+    "postinstall":
+      "tsc && cd client && yarn install --production=false && yarn build"
   },
   "author": "",
   "license": "ISC",
