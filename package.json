@@ -9,8 +9,7 @@
     "dev": "concurrently \"yarn run server\" \"yarn run client\"",
     "start": "node build/server.js",
     "start-local": "node build/youtube-rec/server.js",
-    "postinstall":
-      "tsc && cd client && yarn install --production=false && yarn build"
+    "postinstall": "tsc && cd client && yarn install --production=false && yarn build"
   },
   "author": "",
   "license": "ISC",
@@ -29,6 +28,7 @@
     "express": "^4.16.2",
     "googleapis": "^22.2.0",
     "nedb": "^1.8.0",
+    "node-minify": "^2.4.2",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5"
   }
