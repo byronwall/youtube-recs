@@ -2,6 +2,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { App } from "./App";
 
+import { unregister } from "./registerServiceWorker";
+unregister();
+
 // import registerServiceWorker from "./registerServiceWorker";
 
 // import Bootstrap
