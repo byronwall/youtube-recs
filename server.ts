@@ -14,11 +14,11 @@ import { Response } from "express";
 import * as path from "path";
 import * as bodyParser from "body-parser";
 
-// this calls some process.env calls to set up ENV variables for YOUTUBE API
 try {
+  // this calls some process.env calls to set up ENV variables for YOUTUBE API
   require("../api-keys/youtube");
 } catch (e) {
-  console.log("missing import... no issue");
+  console.log("missing import for api keys... no issue if they are set in ENV");
 }
 
 let API_KEY = process.env.API_KEY;
