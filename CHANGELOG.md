@@ -2,6 +2,8 @@
 
 ## Todo
 
+* the auth redirect URL needs to pass through the AJAX and open a new window... also need to get the callback URL correct.
+
 * add a delete link to the videos to remove from list (or maybe "archive" so not
   added later)
 * ability to limit the length of a video added to the playlist

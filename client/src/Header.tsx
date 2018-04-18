@@ -15,9 +15,17 @@ export class Header extends React.Component<{}, {}> {
     console.log("do auth");
     fetch("/auth", {
       method: "GET"
-    });
+    })
+      .then(res => res.json())
+      .then(obj => {
+        console.log(obj);
 
+        if (obj.url !== undefined) {
+          window.open(obj.url);
+        }
+      });
     // TODO: handle the redirect here also
+
     return false;
   }
 

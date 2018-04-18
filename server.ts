@@ -40,15 +40,16 @@ const db = new nedb({ filename: "./data.db", autoload: true });
 db.ensureIndex({ fieldName: "id", unique: true });
 
 var oauth2Client = google.auth.OAuth2;
-
 var REDIRECT_URL = "http://localhost:3001/auth_callback";
-
-var oauth2Client = new oauth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
+var thisOAuthClient = new oauth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
 // TODO: these auth calls should flow better
 
 app.get("/auth", (req, res) => {
   console.log("creating auth url...");
+
+  REDIRECT_URL = req.headers.origin + "/auth_callback";
+  thisOAuthClient = new oauth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
   authorize(res, true);
 });
@@ -59,19 +60,19 @@ function authorize(res: Response, shouldRedirect: boolean) {
 
   if (fs.existsSync("./tokens.json")) {
     console.log("previous tokens were found... using those");
-    oauth2Client.credentials = JSON.parse(
+    thisOAuthClient.credentials = JSON.parse(
       fs.readFileSync("./tokens.json", "utf-8")
     );
-    if (shouldRedirect) {
-      res.redirect("http://localhost:3000");
-    }
-    return true;
+
+    res.json({ authorized: true });
   } else {
-    var url = oauth2Client.generateAuthUrl({
+    var url = thisOAuthClient.generateAuthUrl({
       access_type: "offline",
       scope: scopes
     });
-    res.redirect(url);
+
+    // TODO: clean this up into a proper typed return
+    res.json({ url });
     console.log("sent redirect");
   }
 
@@ -85,13 +86,13 @@ app.get("/auth_callback", (req, res) => {
 
   const code = req.query.code;
 
-  oauth2Client.getToken(code, function(err, tokens) {
+  thisOAuthClient.getToken(code, function(err, tokens) {
     // Now tokens contains an access_token and an optional refresh_token. Save them.
     if (!err) {
       // write tokens to disk
       fs.writeFileSync("./tokens.json", JSON.stringify(tokens));
 
-      oauth2Client.setCredentials(tokens);
+      thisOAuthClient.setCredentials(tokens);
       console.log("token was created and saved");
 
       // TODO: this needs to kick back into the site somewhere
@@ -117,7 +118,7 @@ app.post("/create_playlist", (req, res) => {
     {
       part: "snippet,status",
       forUsername: "mine",
-      auth: oauth2Client,
+      auth: thisOAuthClient,
       resource: {
         snippet: {
           title: "Algo Watch Later",
@@ -152,7 +153,7 @@ app.get("/create_playlist", (req, res) => {
     {
       part: "snippet,status",
       forUsername: "mine",
-      auth: oauth2Client,
+      auth: thisOAuthClient,
       resource: {
         snippet: {
           title: "Algo Watch Later",
@@ -269,7 +270,7 @@ function getRelatedVideos(id: string, pageToken?: string) {
     youtube.search.list(
       {
         part: "snippet",
-        auth: oauth2Client,
+        auth: thisOAuthClient,
         relatedToVideoId: id,
         pageToken,
         type: "video"
@@ -473,7 +474,7 @@ function addVideoToPlaylist(playlistId: string, videoId: string) {
     youtube.playlistItems.insert(
       {
         part: "snippet",
-        auth: oauth2Client,
+        auth: thisOAuthClient,
         resource: {
           snippet: {
             playlistId,
