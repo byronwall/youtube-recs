@@ -37,7 +37,7 @@ export class Header extends React.Component<{}, {}> {
 
     // should route the request back to the serving host
     bookmarkUrl = bookmarkUrl.replace(
-      "http://localhost:3001",
+      /http:\/\/localhost:3001/g,
       window.location.origin
     );
 
