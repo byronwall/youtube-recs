@@ -96,7 +96,8 @@ app.get("/auth_callback", (req, res) => {
       console.log("token was created and saved");
 
       // TODO: this needs to kick back into the site somewhere
-      res.redirect("http://localhost:3000");
+
+      res.redirect(req.headers.origin as string);
     } else {
       console.log(err);
     }
