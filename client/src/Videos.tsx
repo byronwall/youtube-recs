@@ -10,7 +10,13 @@ interface VideosState {
   filteredVideos: NedbVideo[];
 }
 
+function getScore(video: NedbVideo) {
+  return video.statistics.viewCount * video.ratio;
+}
+
 export class Videos extends React.Component<{}, VideosState> {
+  videosToShown: NedbVideo[];
+
   constructor(props: {}) {
     super(props);
 
@@ -21,12 +27,25 @@ export class Videos extends React.Component<{}, VideosState> {
   }
 
   processFilter(filters: FilterState) {
-    const filteredVideos = this.state.videos.filter(video => {
-      const length = Duration.parse(video.contentDetails.duration).toMinutes();
-      return length < filters.maxLength && video.ratio > filters.minRatio;
-    });
+    const filteredVideos = this.state.videos
+      .filter(video => {
+        if (video.contentDetails === undefined) {
+          return false;
+        }
 
-    this.setState({ filteredVideos });
+        const length = Duration.parse(
+          video.contentDetails.duration
+        ).toMinutes();
+        return length < filters.maxLength && video.ratio > filters.minRatio;
+      })
+      .sort((videoA, videoB) => {
+        return getScore(videoB) - getScore(videoA);
+      })
+      .slice(0, 30);
+
+    // TODO make that slice a variable
+
+    this.videosToShown = filteredVideos;
   }
   processPlaylistCreation() {
     console.log("creating playlist");
@@ -45,21 +64,25 @@ export class Videos extends React.Component<{}, VideosState> {
     }).then(res => console.log(res));
   }
   render() {
+    this.processFilter({
+      maxLength: 20,
+      minRatio: 1
+    });
+
     return (
       <Grid>
         <VideoFilters onUpdate={filters => this.processFilter(filters)} />
         <Row>
           <Col md={3}>
             <Button onClick={() => this.processPlaylistCreation()}>
-              {"Create playlist of items"}{" "}
+              {"Create playlist of items"}
             </Button>
           </Col>
         </Row>
-        <Row>
-          {this.state.filteredVideos.map(video => (
-            <Video key={video._id} video={video} />
-          ))}
-        </Row>
+
+        {this.videosToShown.map(video => (
+          <Video key={video._id} video={video} />
+        ))}
       </Grid>
     );
   }
@@ -73,8 +96,7 @@ export class Videos extends React.Component<{}, VideosState> {
       })
       .then((videos: NedbVideo[]) => {
         this.setState({
-          videos,
-          filteredVideos: videos
+          videos
         });
       });
   }
