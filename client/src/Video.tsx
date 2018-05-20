@@ -22,14 +22,22 @@ export class Video extends React.Component<VideoProps, {}> {
     return (
       <div>
         <Row>
-          <Col md={3}>
+          <Col md={2}>
             <a href={"https://youtube.com/watch?v=" + video.id}>
               <img src={video.snippet.thumbnails.default.url} />
             </a>
           </Col>
-          <Col md={9}>
+          <Col md={10}>
             <h4>{truncate(video.snippet.title, 60)}</h4>
             <p>
+              <a
+                href={
+                  "https://www.youtube.com/channel/" + video.snippet.channelId
+                }
+              >
+                {video.snippet.channelTitle}
+              </a>
+              <span>{" | "}</span>
               <span>{numeral(video.score).format("0,0")}</span>
               <span>{" | "}</span>
               <span>{numeral(video.ratio).format("0.0")}</span>
