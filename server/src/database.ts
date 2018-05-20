@@ -1,20 +1,5 @@
-import {
-  YoutubeVideoListResponse,
-  NedbVideo,
-  YoutubeVideo,
-  SearchListResponse
-} from "../../client/src/youtube";
 import * as nedb from "nedb";
-import * as express from "express";
-import * as google from "googleapis";
-
-import * as rp from "request-promise-native";
-import { Response } from "express";
-
-import * as path from "path";
-import * as bodyParser from "body-parser";
-
-import * as fs from "fs";
+import { NedbVideo, YoutubeVideo } from "../../client/src/youtube";
 import { Youtube } from "./youtube";
 
 var db: nedb;

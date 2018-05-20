@@ -1,23 +1,9 @@
-import {
-  YoutubeVideoListResponse,
-  NedbVideo,
-  YoutubeVideo,
-  SearchListResponse
-} from "../../client/src/youtube";
-import * as nedb from "nedb";
-import * as express from "express";
-import * as google from "googleapis";
-
-import * as rp from "request-promise-native";
-import { Response } from "express";
-
-import * as path from "path";
 import * as bodyParser from "body-parser";
-
-import * as fs from "fs";
-import { Youtube } from "./youtube";
+import * as express from "express";
+import * as path from "path";
 import { Database } from "./database";
-import { ApiWatched, ApiRelated } from "./interfaces";
+import { ApiRelated, ApiWatched } from "./interfaces";
+import { Youtube } from "./youtube";
 
 export class Server {
   youtubeInst: Youtube;
