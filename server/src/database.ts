@@ -2,7 +2,7 @@ import * as nedb from "nedb";
 import { NedbVideo, YoutubeVideo } from "../../client/src/youtube";
 import { Youtube } from "./youtube";
 
-var db: nedb;
+let db: nedb;
 
 export class Database {
   // load the database
