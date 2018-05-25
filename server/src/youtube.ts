@@ -93,7 +93,9 @@ export class Youtube {
     });
   }
 
-  authorize(res: Response, shouldRedirect: boolean) {
+  authorize(res: Response, sourceDomain: string, shouldRedirect: boolean) {
+    // HACK: do a check to see if ENV set.. error if not
+
     try {
       // this calls some process.env calls to set up ENV variables for YOUTUBE API
       require("../../../api-keys/youtube");
@@ -108,7 +110,7 @@ export class Youtube {
     let CLIENT_ID = process.env.CLIENT_ID;
     let CLIENT_SECRET = process.env.CLIENT_SECRET;
 
-    var REDIRECT_URL = "http://localhost:3001/auth_callback";
+    var REDIRECT_URL = sourceDomain + "/auth_callback";
     this.thisOAuthClient = new oauth2Client(
       CLIENT_ID,
       CLIENT_SECRET,

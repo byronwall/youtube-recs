@@ -22,7 +22,7 @@ export class Server {
     app.get("/auth", (req, res) => {
       console.log("creating auth url...");
 
-      this.youtubeInst.authorize(res, true);
+      this.youtubeInst.authorize(res, req.headers.origin as string, true);
     });
 
     app.get("/auth_callback", async (req, res) => {
@@ -73,7 +73,7 @@ export class Server {
     app.get("/related", (req, res) => {
       // this is the end point that will add a watched video to the database
 
-      this.youtubeInst.authorize(res, false);
+      this.youtubeInst.authorize(res, req.headers.origin as string, false);
 
       const query: ApiRelated = req.query;
 
