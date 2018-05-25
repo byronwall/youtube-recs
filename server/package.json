@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon --watch '*.ts' --exec ts-node server/src/index.ts",
-    "client": "cd client && yarn start",
+    "server": "nodemon --watch '*.ts' --exec ts-node src/index.ts",
+    "start": "node build/index.js",
+    "client": "cd ../client && yarn start",
     "dev": "concurrently \"yarn run server\" \"yarn run client\"",
-    "start": "node build/server.js",
-    "start-local": "node build/youtube-rec/server.js",
-    "postinstall": "tsc && cd client && yarn install --production=false && yarn build"
+    "start-local": "node build/index.js",
+    "build":
+      "tsc && cd ../client && yarn install --production=false && yarn build"
   },
   "author": "",
   "license": "ISC",

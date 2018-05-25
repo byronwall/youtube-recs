@@ -1,6 +1,7 @@
 import * as nedb from "nedb";
-import { NedbVideo, YoutubeVideo } from "../../client/src/youtube";
+
 import { Youtube } from "./youtube";
+import { NedbVideo, YoutubeVideo } from "./youtube_client";
 
 let db: nedb;
 

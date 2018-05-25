@@ -5,8 +5,9 @@
     "target": "es5",
     "outDir": "./build",
     "types": ["node"],
-    "allowJs": true
+    "allowJs": true,
+    "rootDir": "./src"
   },
-  "include": ["."],
+  "include": ["./src"],
   "exclude": ["node_modules", "client", "build"]
 }

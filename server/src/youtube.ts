@@ -2,7 +2,7 @@ import { Response } from "express";
 import * as fs from "fs";
 import * as google from "googleapis";
 import * as rp from "request-promise-native";
-import { SearchListResponse } from "../../client/src/youtube";
+import { SearchListResponse } from "./youtube_client";
 import { Database } from "./database";
 
 const youtube = google.youtube("v3");

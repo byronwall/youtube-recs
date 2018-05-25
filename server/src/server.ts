@@ -17,7 +17,7 @@ export class Server {
 
     // Serve static files from the React app
     // TODO: update this path
-    app.use(express.static(path.join(__dirname, "../client/build")));
+    app.use(express.static(path.join(__dirname, "../../client/build")));
 
     app.get("/auth", (req, res) => {
       console.log("creating auth url...");
@@ -123,7 +123,7 @@ export class Server {
     });
 
     app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "../client/build/index.html"));
+      res.sendFile(path.join(__dirname, "../../client/build/index.html"));
     });
 
     const port = process.env.PORT || 3001;
