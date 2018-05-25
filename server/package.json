@@ -21,11 +21,11 @@
     "@types/request-promise-native": "^1.0.9",
     "heroku-cli": "^6.16.3",
     "ts-node": "^3.3.0",
-    "typescript": "^2.5.3"
+    "typescript": "^2.5.3",
+    "concurrently": "^3.5.1"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
-    "concurrently": "^3.5.1",
     "express": "^4.16.2",
     "googleapis": "^22.2.0",
     "nedb": "^1.8.0",
