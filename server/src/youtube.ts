@@ -13,7 +13,7 @@ export class Youtube {
 
   static API_KEY;
 
-  createPlaylist(videoIds) {
+  createPlaylist() {
     youtube.playlists.insert(
       {
         part: "snippet,status",
@@ -35,10 +35,10 @@ export class Youtube {
         } else {
           console.log("response", response);
 
-          const playlistId = response.id;
+          const id = response.id;
 
           // take that id and add some items to it
-          this.addIdsToPlaylist(playlistId, videoIds);
+          this.addTopItemsToPlaylist(id);
         }
       }
     );

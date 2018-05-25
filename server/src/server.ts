@@ -38,11 +38,9 @@ export class Server {
     });
 
     app.get("/create_playlist", (req, res) => {
-      console.log(req.body);
-      const videoIds = req.body;
+      this.youtubeInst.createPlaylist();
 
-      this.youtubeInst.createPlaylist(videoIds);
-
+      // TODO: fix this bad adddress
       res.redirect("http://localhost:3000");
     });
 
