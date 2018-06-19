@@ -60,6 +60,18 @@ export class Database {
     });
   }
 
+  static removeVideo(_id: number) {
+    return new Promise((resolve, reject) => {
+      this.get().remove({ _id }, {}, (err, numRemoved) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(numRemoved > 0);
+        }
+      });
+    });
+  }
+
   static getBest(count: number, callback: (videos: NedbVideo[]) => void) {
     this.get()
       .find({})

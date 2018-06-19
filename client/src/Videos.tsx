@@ -1,9 +1,10 @@
-import { VideoFilters, FilterState } from "./VideoFilters";
-import { NedbVideo } from "./youtube";
-import { Video } from "./Video";
-import * as React from "react";
-import { Row, Grid, Col, Button } from "react-bootstrap";
 import { Duration } from "js-joda";
+import * as React from "react";
+import { Button, Col, Grid, Row } from "react-bootstrap";
+
+import { Video } from "./Video";
+import { FilterState, VideoFilters } from "./VideoFilters";
+import { NedbVideo } from "./youtube";
 
 interface VideosState {
   videos: NedbVideo[];
@@ -13,7 +14,9 @@ interface VideosState {
 function getScore(video: NedbVideo) {
   return video.statistics.viewCount * video.ratio;
 }
-
+interface ResponseRemove {
+  result: boolean;
+}
 export class Videos extends React.Component<{}, VideosState> {
   videosToShown: NedbVideo[];
 
@@ -24,6 +27,35 @@ export class Videos extends React.Component<{}, VideosState> {
       videos: [],
       filteredVideos: []
     };
+  }
+
+  handleRemove(id: string) {
+    console.log("remove at server", id);
+
+    (async () => {
+      const rawResponse = await fetch("/remove", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+      });
+      const content: ResponseRemove = await rawResponse.json();
+
+      if (content) {
+        if (content.result) {
+          // remove that id from the local video list
+          let newVideos = this.state.videos.filter(video => video._id !== id);
+
+          this.setState({ videos: newVideos });
+        }
+      }
+
+      console.log("post response", content);
+    })();
+
+    // hit the server end point to remove from DB
   }
 
   processFilter(filters: FilterState) {
@@ -81,7 +113,11 @@ export class Videos extends React.Component<{}, VideosState> {
         </Row>
 
         {this.videosToShown.map(video => (
-          <Video key={video._id} video={video} />
+          <Video
+            key={video._id}
+            video={video}
+            handleRemove={() => this.handleRemove(video._id!)}
+          />
         ))}
       </Grid>
     );

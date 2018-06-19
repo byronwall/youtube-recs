@@ -1,14 +1,14 @@
-import { NedbVideo } from "./youtube";
-import * as React from "react";
-
-import * as numeral from "numeral";
-import { truncate } from "./Helpers";
-
 import { Duration } from "js-joda";
-import { Col, Row } from "react-bootstrap";
+import * as numeral from "numeral";
+import * as React from "react";
+import { Col, Row, Glyphicon, Button } from "react-bootstrap";
+
+import { truncate } from "./Helpers";
+import { NedbVideo } from "./youtube";
 
 interface VideoProps {
   video: NedbVideo;
+  handleRemove(): void;
 }
 
 export class Video extends React.Component<VideoProps, {}> {
@@ -27,7 +27,7 @@ export class Video extends React.Component<VideoProps, {}> {
               <img src={video.snippet.thumbnails.default.url} />
             </a>
           </Col>
-          <Col md={10}>
+          <Col md={9}>
             <h4>{truncate(video.snippet.title, 60)}</h4>
             <p>
               <a
@@ -44,6 +44,11 @@ export class Video extends React.Component<VideoProps, {}> {
               <span>{" | "}</span>
               <span>{prettyDuration(video.contentDetails.duration)}</span>
             </p>
+          </Col>
+          <Col md={1}>
+            <Button onClick={this.props.handleRemove}>
+              <Glyphicon glyph="remove" />
+            </Button>
           </Col>
         </Row>
       </div>

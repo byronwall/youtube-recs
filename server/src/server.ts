@@ -1,6 +1,7 @@
 import * as bodyParser from "body-parser";
 import * as express from "express";
 import * as path from "path";
+
 import { Database } from "./database";
 import { ApiRelated, ApiWatched } from "./interfaces";
 import { Youtube } from "./youtube";
@@ -40,7 +41,7 @@ export class Server {
     app.get("/create_playlist", (req, res) => {
       this.youtubeInst.createPlaylist();
 
-      // TODO: fix this bad adddress
+      // TODO: fix this bad address
       res.redirect("http://localhost:3000");
     });
 
@@ -118,6 +119,22 @@ export class Server {
 
       let videos = await Database.getDefaultData();
       res.json(videos);
+    });
+
+    interface ParamsRemove {
+      id: number;
+    }
+
+    app.post("/remove", async (req, res) => {
+      let params: ParamsRemove = req.body;
+      let id = params.id;
+
+      console.log("remove video", id);
+      let anyRemoved = await Database.removeVideo(id);
+
+      console.log("was removed", anyRemoved);
+
+      res.json({ result: anyRemoved });
     });
 
     app.get("*", (req, res) => {
