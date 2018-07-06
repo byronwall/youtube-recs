@@ -33,7 +33,7 @@ export interface Localized {
 }
 
 export interface Snippet {
-  publishedAt: Date;
+  publishedAt: string;
   channelId: string;
   title: string;
   description: string;
@@ -73,8 +73,10 @@ export interface YoutubeVideo extends YoutubeObj {
 
 export interface NedbVideo extends YoutubeVideo {
   _id?: string;
-  ratio: number;
-  score: number;
+  ratio?: number;
+  score?: number;
+  lastUpdated?: number;
+  watched?: boolean;
 }
 
 export interface PageInfo {

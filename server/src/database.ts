@@ -140,7 +140,9 @@ export class Database {
   static processDoc(doc: YoutubeVideo) {
     // convert the stats info to numbers
 
-    const newDoc: NedbVideo = { ...doc, ratio: null, score: null };
+    const newDoc: NedbVideo = {
+      ...doc
+    };
 
     Object.keys(newDoc.statistics).forEach(key => {
       newDoc.statistics[key] = parseInt(newDoc.statistics[key]);
@@ -163,6 +165,8 @@ export class Database {
       // take the object and push to a database
 
       const newDoc = this.processDoc(item);
+
+      newDoc.lastUpdated = _getUnixTimeSeconds();
 
       this.get().update({ id: newDoc.id }, newDoc);
       console.log("inserted into DB", id);
@@ -189,6 +193,47 @@ export class Database {
     });
   }
 
+  static updateOlderDataData() {
+    // grab the IDs that do not have a kind field
+
+    this.get().find<NedbVideo>(
+      {
+        $or: [
+          { lastUpdated: { $exists: false } },
+          {
+            $where: function() {
+              let self = this as NedbVideo;
+              const now = _getUnixTimeSeconds();
+              return (
+                !self.watched &&
+                (now - self.lastUpdated) /
+                  (self.lastUpdated -
+                    Date.parse(self.snippet.publishedAt) / 1000) >
+                  1
+              );
+            }
+          }
+        ]
+      },
+      (err, docs: NedbVideo[]) => {
+        if (err) {
+          throw err;
+        }
+
+        const docIds = docs.map(doc => doc.id);
+
+        console.log("older docuemnts", docIds);
+
+        // send those to the API to load the data
+
+        // update the DB with that data
+        this.processAllDataInSerial(docIds).then(() => {
+          console.log("all of those items have been updated");
+        });
+      }
+    );
+  }
+
   static processAllDataInSerial(ids: string[]) {
     return ids.reduce((chain, nextId) => {
       console.log("reducer", nextId);
@@ -197,4 +242,7 @@ export class Database {
       });
     }, Promise.resolve());
   }
+}
+function _getUnixTimeSeconds(): number {
+  return Math.floor(Date.now() / 1000);
 }

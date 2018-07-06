@@ -97,13 +97,7 @@ export class Server {
       // call to api to get related
     });
 
-    app.get("/updateData", (req, res) => {
-      // this is the end point that will add a watched video to the database
-
-      Database.updateMissingData();
-
-      res.send("it's going... check the server console");
-    });
+    app.get("/updateData", this.updateData());
 
     app.get("/updateRatio", (req, res) => {
       // this is the end point that will add a watched video to the database
@@ -145,5 +139,15 @@ export class Server {
     app.listen(port);
 
     console.log("server running...");
+  }
+
+  private updateData() {
+    return (req, res) => {
+      // this is the end point that will add a watched video to the database
+      Database.updateMissingData();
+      Database.updateOlderDataData();
+
+      res.send("it's going... check the server console");
+    };
   }
 }

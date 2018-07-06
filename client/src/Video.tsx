@@ -40,9 +40,18 @@ export class Video extends React.Component<VideoProps, {}> {
               <span>{" | "}</span>
               <span>{numeral(video.score).format("0,0")}</span>
               <span>{" | "}</span>
-              <span>{numeral(video.ratio).format("0.0")}</span>
+              <span>
+                <Glyphicon glyph="thumbs-up" />
+                <Glyphicon glyph="thumbs-down" />
+                {" "}
+                {numeral(video.ratio).format("0.0")}
+              </span>
               <span>{" | "}</span>
-              <span>{prettyDuration(video.contentDetails.duration)}</span>
+              <span>
+                <Glyphicon glyph="time" />
+                {" "}
+                {prettyDuration(video.contentDetails.duration)}
+              </span>
             </p>
           </Col>
           <Col md={1}>

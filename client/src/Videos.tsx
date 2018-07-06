@@ -12,7 +12,7 @@ interface VideosState {
 }
 
 function getScore(video: NedbVideo) {
-  return video.statistics.viewCount * video.ratio;
+  return video.statistics.viewCount * video.ratio!;
 }
 interface ResponseRemove {
   result: boolean;
@@ -68,7 +68,7 @@ export class Videos extends React.Component<{}, VideosState> {
         const length = Duration.parse(
           video.contentDetails.duration
         ).toMinutes();
-        return length < filters.maxLength && video.ratio > filters.minRatio;
+        return length < filters.maxLength && video.ratio! > filters.minRatio;
       })
       .sort((videoA, videoB) => {
         return getScore(videoB) - getScore(videoA);

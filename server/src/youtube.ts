@@ -98,9 +98,10 @@ export class Youtube {
 
     try {
       // this calls some process.env calls to set up ENV variables for YOUTUBE API
-      require("../../../api-keys/youtube");
+      require("./keys");
     } catch (e) {
       console.log(
+        e,
         "missing import for api keys... no issue if they are set in ENV"
       );
     }
