@@ -117,6 +117,7 @@ export class Videos extends React.Component<{}, VideosState> {
             key={video._id}
             video={video}
             handleRemove={() => this.handleRemove(video._id!)}
+            showRelated={() => console.log("show related: ", video._id)}
           />
         ))}
       </Grid>

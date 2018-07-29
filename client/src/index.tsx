@@ -1,16 +1,20 @@
+import "bootstrap/dist/css/bootstrap-theme.css";
+import "bootstrap/dist/css/bootstrap.css";
+
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { App } from "./App";
+import { HashRouter, Route } from "react-router-dom";
 
+import { App } from "./App";
 import { unregister } from "./registerServiceWorker";
+
 unregister();
 
-// import registerServiceWorker from "./registerServiceWorker";
-
 // import Bootstrap
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap/dist/css/bootstrap-theme.css";
+const mainComp = (
+  <HashRouter>
+    <Route component={App} path={"/"} />
+  </HashRouter>
+);
 
-ReactDOM.render(<App />, document.getElementById("root") as HTMLElement);
-
-// registerServiceWorker();
+ReactDOM.render(mainComp, document.getElementById("root") as HTMLElement);

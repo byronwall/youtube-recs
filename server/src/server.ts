@@ -5,6 +5,7 @@ import * as path from "path";
 import { Database } from "./database";
 import { ApiRelated, ApiWatched } from "./interfaces";
 import { Youtube } from "./youtube";
+import { SearchResult } from "./youtube_client";
 
 export class Server {
   youtubeInst: Youtube;
@@ -89,7 +90,15 @@ export class Server {
 
       const d = Promise.all([a, b, c]).then(results => {
         console.log(results);
-        res.json(results);
+
+        // take the results and dump them into one array out
+        const outItems: SearchResult[] = [];
+
+        for (let result of results) {
+          outItems.push(...result.items);
+        }
+
+        res.json(outItems);
       });
 
       console.log("calling related ", id);

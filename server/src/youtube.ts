@@ -128,7 +128,7 @@ export class Youtube {
         fs.readFileSync("./tokens.json", "utf-8")
       );
 
-      res.json({ authorized: true });
+      //      res.json({ authorized: true });
     } else {
       var url = this.thisOAuthClient.generateAuthUrl({
         access_type: "offline",
@@ -182,7 +182,7 @@ export class Youtube {
   }
 
   getRelatedVideos(id: string, pageToken?: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<SearchListResponse>((resolve, reject) => {
       youtube.search.list(
         {
           part: "snippet",

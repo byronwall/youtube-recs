@@ -5,10 +5,12 @@ import { Col, Row, Glyphicon, Button } from "react-bootstrap";
 
 import { truncate } from "./Helpers";
 import { NedbVideo } from "./youtube";
+import { Link } from "react-router-dom";
 
 interface VideoProps {
   video: NedbVideo;
   handleRemove(): void;
+  showRelated(): void;
 }
 
 export class Video extends React.Component<VideoProps, {}> {
@@ -42,19 +44,20 @@ export class Video extends React.Component<VideoProps, {}> {
               <span>{" | "}</span>
               <span>
                 <Glyphicon glyph="thumbs-up" />
-                <Glyphicon glyph="thumbs-down" />
-                {" "}
+                <Glyphicon glyph="thumbs-down" />{" "}
                 {numeral(video.ratio).format("0.0")}
               </span>
               <span>{" | "}</span>
               <span>
-                <Glyphicon glyph="time" />
-                {" "}
+                <Glyphicon glyph="time" />{" "}
                 {prettyDuration(video.contentDetails.duration)}
               </span>
             </p>
           </Col>
           <Col md={1}>
+            <Link to={"/related/" + this.props.video.id}>
+              <Glyphicon glyph="random" />
+            </Link>
             <Button onClick={this.props.handleRemove}>
               <Glyphicon glyph="remove" />
             </Button>
