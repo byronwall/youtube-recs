@@ -1,0 +1,7 @@
+Major items:
+    ☐ Indicate YouTube activation status
+    ☐ Use web sockets to send data back to the client as the server updates
+    ☐ Callback redirect goes to `localhost`
+    ☐ Better control of sort order on the main page
+    ☐ Automatically update data at the correct times
+    

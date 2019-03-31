@@ -17,17 +17,18 @@
     "@types/nedb": "^1.8.5",
     "@types/node": "^8.0.47",
     "@types/request-promise-native": "^1.0.9",
+    "concurrently": "^3.5.1",
     "ts-node": "^3.3.0",
-    "typescript": "^2.5.3",
-    "concurrently": "^3.5.1"
+    "typescript": "^2.5.3"
   },
   "dependencies": {
+    "@types/request": "^2.47.1",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "googleapis": "^22.2.0",
     "nedb": "^1.8.0",
     "node-minify": "^2.4.2",
-    "request": "^2.83.0",
+    "request": "^2.88.0",
     "request-promise-native": "^1.0.5"
   }
 }
